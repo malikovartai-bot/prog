@@ -73,7 +73,7 @@ currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
 let db;
 let actors = [];
-const pendingChanges = new Map();
+let statusMap = new Map();
 
 function getDaysInMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -111,6 +111,11 @@ function queryRows(statement, params = []) {
   }
   stmt.free();
   return rows;
+}
+
+function refreshStatusMap() {
+  const statusRows = queryRows("SELECT id, code FROM availability_statuses");
+  statusMap = new Map(statusRows.map((row) => [row.code, row.id]));
 }
 
 function refreshActors() {
@@ -169,10 +174,6 @@ function createHead(date) {
 }
 
 function getStatus(actor, day) {
-  const override = pendingChanges.get(`${actor.id}-${day}`);
-  if (override) {
-    return override;
-  }
   return actor.availability[day] ?? "free";
 }
 
@@ -182,10 +183,30 @@ function cycleStatus(status) {
   return statusOrder[nextIndex];
 }
 
+function updateStatusInDatabase(actorId, day, status) {
+  const statusId = statusMap.get(status);
+  if (!statusId) {
+    return;
+  }
+  const date = formatDateKey(currentDate, day);
+  db.run(
+    `
+    INSERT INTO actor_availability (actor_id, date, status_id)
+    VALUES (?, ?, ?)
+    ON CONFLICT(actor_id, date)
+    DO UPDATE SET status_id = excluded.status_id, updated_at = CURRENT_TIMESTAMP
+    `,
+    [actorId, date, statusId]
+  );
+  persistDatabase();
+}
+
 function handleCellClick(actor, day) {
   const current = getStatus(actor, day);
   const next = cycleStatus(current);
-  pendingChanges.set(`${actor.id}-${day}`, next);
+  actor.availability[day] = next;
+  updateStatusInDatabase(actor.id, day, next);
+  saveStatus.textContent = "Изменения сохранены.";
   renderCalendar();
 }
 
@@ -238,45 +259,6 @@ function renderCalendar() {
   });
 }
 
-function saveChanges() {
-  const changes = [];
-  pendingChanges.forEach((status, key) => {
-    const [actorId, day] = key.split("-").map(Number);
-    changes.push({
-      actorId,
-      date: formatDateKey(currentDate, day),
-      status,
-    });
-  });
-
-  if (changes.length === 0) {
-    saveStatus.textContent = "Нет изменений для сохранения.";
-    return;
-  }
-
-  const statusRows = queryRows("SELECT id, code FROM availability_statuses");
-  const statusMap = new Map(statusRows.map((row) => [row.code, row.id]));
-
-  changes.forEach((change) => {
-    const statusId = statusMap.get(change.status);
-    db.run(
-      `
-      INSERT INTO actor_availability (actor_id, date, status_id)
-      VALUES (?, ?, ?)
-      ON CONFLICT(actor_id, date)
-      DO UPDATE SET status_id = excluded.status_id, updated_at = CURRENT_TIMESTAMP
-      `,
-      [change.actorId, change.date, statusId]
-    );
-  });
-
-  pendingChanges.clear();
-  persistDatabase();
-  refreshActors();
-  renderCalendar();
-  saveStatus.textContent = "Изменения сохранены.";
-}
-
 function saveNewActor(name, role) {
   db.run("INSERT INTO actors (full_name, role_name) VALUES (?, ?)", [name, role]);
   persistDatabase();
@@ -301,20 +283,21 @@ actorForm.addEventListener("submit", (event) => {
 
 prevMonthButton.addEventListener("click", () => {
   currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-  pendingChanges.clear();
   refreshActors();
   renderCalendar();
 });
 
 nextMonthButton.addEventListener("click", () => {
   currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-  pendingChanges.clear();
   refreshActors();
   renderCalendar();
 });
 
 searchInput.addEventListener("input", renderCalendar);
-saveButton.addEventListener("click", saveChanges);
+saveButton.addEventListener("click", () => {
+  persistDatabase();
+  saveStatus.textContent = "Все изменения сохранены.";
+});
 
 (async () => {
   const SQL = await initSqlJs({
@@ -322,6 +305,7 @@ saveButton.addEventListener("click", saveChanges);
   });
   db = loadDatabase(SQL);
   db.exec(schemaSql);
+  refreshStatusMap();
   refreshActors();
   renderCalendar();
 })();
