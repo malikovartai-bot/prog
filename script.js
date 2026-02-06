@@ -55,7 +55,7 @@ INSERT INTO availability_statuses (code, label, color_hex)
     ('maybe', 'Под вопросом', '#facc15')
   ON CONFLICT(code) DO NOTHING;
 `;
-
+main
 const calendarHead = document.getElementById("calendarHead");
 const calendarBody = document.getElementById("calendarBody");
 const monthLabel = document.getElementById("monthLabel");
@@ -74,7 +74,7 @@ currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 let db;
 let actors = [];
 const pendingChanges = new Map();
-
+n
 function getDaysInMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
@@ -149,7 +149,7 @@ function refreshActors() {
     }
   });
 }
-
+ main
 function createHead(date) {
   calendarHead.innerHTML = "";
   const row = document.createElement("tr");
