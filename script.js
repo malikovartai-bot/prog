@@ -74,7 +74,7 @@ currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 let db;
 let actors = [];
 let statusMap = new Map();
-
+ main
 function getDaysInMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
@@ -117,7 +117,7 @@ function refreshStatusMap() {
   const statusRows = queryRows("SELECT id, code FROM availability_statuses");
   statusMap = new Map(statusRows.map((row) => [row.code, row.id]));
 }
-
+main
 function refreshActors() {
   const rows = queryRows(
     "SELECT id, full_name, role_name FROM actors WHERE is_active = 1 ORDER BY id DESC"
@@ -154,7 +154,7 @@ function refreshActors() {
     }
   });
 }
-
+ main
 function createHead(date) {
   calendarHead.innerHTML = "";
   const row = document.createElement("tr");
@@ -288,7 +288,7 @@ prevMonthButton.addEventListener("click", () => {
 });
 
 nextMonthButton.addEventListener("click", () => {
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);n
   refreshActors();
   renderCalendar();
 });
