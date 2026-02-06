@@ -84,7 +84,6 @@ currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
 const pendingChanges = new Map();
 const newActors = [];
- main
 function getDaysInMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
@@ -136,7 +135,7 @@ function handleCellClick(actor, day) {
 
 function renderCalendar() {
   const searchValue = searchInput.value.trim().toLowerCase();
-  const filteredActors = actors.filter((actor) =>main
+  const filteredActors = actors.filter((actor) =>
     actor.name.toLowerCase().includes(searchValue)
   );
 
@@ -265,7 +264,7 @@ prevMonthButton.addEventListener("click", () => {
 });
 
 nextMonthButton.addEventListener("click", () => {
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);codex
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
   pendingChanges.clear();
   renderCalendar();
 });
@@ -273,4 +272,4 @@ nextMonthButton.addEventListener("click", () => {
 searchInput.addEventListener("input", renderCalendar);
 saveButton.addEventListener("click", saveChanges);
 
-renderCalendar();main
+renderCalendar();n
