@@ -15,7 +15,7 @@ body {
 }
 
 .page {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 40px 24px 72px;
 }
@@ -24,7 +24,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
-  align-items: center;in
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
 }
@@ -40,7 +40,7 @@ body {
 h1 {
   font-size: 30px;
   margin: 0;
-  color: #f5f6f8;main
+  color: #f5f6f8;
 }
 
 .page__controls {
@@ -104,7 +104,7 @@ h1 {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .legend__item {
@@ -133,123 +133,156 @@ h1 {
   background: #facc15;
 }
 
-.schedule {
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.sidebar {
   background: #141a26;
   border-radius: 18px;
   padding: 18px;
+  border: 1px solid #2b3245;
+}
+
+.sidebar h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.actor-form {
+  display: grid;
+  gap: 12px;
+}
+
+.actor-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: #9aa3b2;
+}
+
+.actor-form input {
+  border: 1px solid #2b3245;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: #101521;
+  color: #f5f6f8;
+}
+
+.sidebar__hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #9aa3b2;
+}
+
+.primary-button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #2563eb;
+  color: #f5f6f8;
+}
+
+.primary-button:hover {
+  background: #1d4ed8;
+}
+
+.calendar {
+  background: #141a26;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid #2b3245;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
-.schedule__grid {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 12px;
+.calendar__table {
+  overflow-x: auto;
 }
 
-.schedule__head {
-  display: grid;
-  grid-column: 2 / -1;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(36px, 1fr);
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: #141a26;
+  z-index: 1;
+}
+
+th,
+td {
+  border: 1px solid #2b3245;
   text-align: center;
+  padding: 6px;
+  font-size: 12px;
+  color: #c7ced9;
+}
+
+th.actor-header,
+td.actor-cell {
+  text-align: left;
+  min-width: 180px;
+  background: #101521;
+  font-weight: 600;
+  color: #f5f6f8;
+}
+
+.actor-subtitle {
+  display: block;
+  font-weight: 400;
   font-size: 11px;
   color: #9aa3b2;
-  padding-left: 4px;
 }
 
-.schedule__head strong {
-  font-size: 12px;
-  color: #f5f6f8;
-}
-
-.schedule__head div {
-  padding: 8px 0;
-}
-
-.schedule__body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.actor-row {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 12px;
-  align-items: stretch;
-}
-
-.actor-card {
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: #1a2131;
-  border: 1px solid #2b3245;
-}
-
-.actor-card h3 {
-  margin: 0 0 6px;
-  font-size: 15px;
-  color: #f5f6f8;
-}
-
-.actor-card p {
-  margin: 0;
-  font-size: 12px;
-  color: #9aa3b2;
-}
-
-.timeline {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(18px, 1fr);
-  gap: 4px;
-  border-radius: 14px;
-  padding: 8px;
-  background: #101521;
-  border: 1px solid #2b3245;
-}
-
-.timeline__day {
+.day-cell button {
+  width: 100%;
   height: 32px;
+  border: none;
   border-radius: 8px;
-  opacity: 0.9;
+  cursor: pointer;
 }
 
-.timeline__day--busy {
+.day-cell button:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+.status-busy {
   background: #ef4444;
 }
 
-.timeline__day--free {
+.status-free {
   background: #22c55e;
 }
 
-.timeline__day--maybe {
+.status-maybe {
   background: #facc15;
 }
 
-.empty-state {
-  padding: 32px;
-  text-align: center;
-  color: #9aa3b2;
-  font-size: 14px;
+.calendar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
 }
 
-@media (max-width: 900px) {
-  .schedule__grid,
-  .actor-row {
+.calendar__status {
+  font-size: 12px;
+  color: #9aa3b2;
+}
+
+@media (max-width: 1000px) {
+  .layout {
     grid-template-columns: 1fr;
-  }
-
-  .schedule__head {
-    grid-column: 1 / -1;
-  }
-
-  .timeline {
-    padding: 10px;
-  }
-
-  .month-switcher {
-    width: 100%;
-    justify-content: space-between;
   }
 }

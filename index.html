@@ -42,12 +42,41 @@
         <span class="legend__item">
           <span class="legend__chip legend__chip--maybe"></span>
           Под вопросом
+        </span>
       </section>
 
-      <section class="schedule" aria-live="polite">
-        <div class="schedule__grid">
-          <div class="schedule__head" id="scheduleHead"></div>
-          <div class="schedule__body" id="scheduleBody"></div>
+      <section class="layout">
+        <aside class="sidebar">
+          <h2>Добавить актера</h2>
+          <form id="actorForm" class="actor-form">
+            <label>
+              Имя актера
+              <input id="actorName" type="text" required placeholder="Например, Мария Павлова" />
+            </label>
+            <label>
+              Роль
+              <input id="actorRole" type="text" required placeholder="Например, Антагонист" />
+            </label>
+            <button type="submit" class="primary-button">Добавить и сохранить</button>
+          </form>
+          <div class="sidebar__hint">
+            Новые актеры будут добавлены в расписание после сохранения.
+          </div>
+        </aside>
+
+        <div class="calendar">
+          <div class="calendar__table" aria-live="polite">
+            <table>
+              <thead id="calendarHead"></thead>
+              <tbody id="calendarBody"></tbody>
+            </table>
+          </div>
+          <div class="calendar__actions">
+            <button class="primary-button" id="saveChanges" type="button">
+              Сохранить изменения
+            </button>
+            <span class="calendar__status" id="saveStatus"></span>
+          </div>
         </div>
       </section>
     </div>

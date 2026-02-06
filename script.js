@@ -1,44 +1,47 @@
-
 const actors = [
   {
+    id: 1,
     name: "Анна Смирнова",
     role: "Главная героиня",
-    pattern: [
-      { day: 3, status: "busy" },
-      { day: 4, status: "busy" },
-      { day: 10, status: "maybe" },
-      { day: 15, status: "busy" },
-      { day: 22, status: "busy" },
-    ],
+    availability: {
+      3: "busy",
+      4: "busy",
+      10: "maybe",
+      15: "busy",
+      22: "busy",
+    },
   },
   {
+    id: 2,
     name: "Илья Котов",
     role: "Второстепенная роль",
-    pattern: [
-      { day: 1, status: "maybe" },
-      { day: 8, status: "busy" },
-      { day: 9, status: "busy" },
-      { day: 18, status: "busy" },
-    ],
+    availability: {
+      1: "maybe",
+      8: "busy",
+      9: "busy",
+      18: "busy",
+    },
   },
   {
+    id: 3,
     name: "Мария Павлова",
     role: "Антагонист",
-    pattern: [
-      { day: 5, status: "busy" },
-      { day: 6, status: "busy" },
-      { day: 7, status: "busy" },
-      { day: 19, status: "maybe" },
-    ],
+    availability: {
+      5: "busy",
+      6: "busy",
+      7: "busy",
+      19: "maybe",
+    },
   },
   {
+    id: 4,
     name: "Сергей Орлов",
     role: "Эпизод",
-    pattern: [
-      { day: 12, status: "busy" },
-      { day: 13, status: "busy" },
-      { day: 25, status: "maybe" },
-    ],
+    availability: {
+      12: "busy",
+      13: "busy",
+      25: "maybe",
+    },
   },
 ];
 
@@ -57,122 +60,217 @@ const monthNames = [
   "Декабрь",
 ];
 
-const weekDays = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-
+const statusOrder = ["free", "maybe", "busy"];
 const statusLabels = {
   busy: "Занят",
   free: "Свободен",
   maybe: "Под вопросом",
 };
 
-const scheduleHead = document.getElementById("scheduleHead");
-const scheduleBody = document.getElementById("scheduleBody");
+const calendarHead = document.getElementById("calendarHead");
+const calendarBody = document.getElementById("calendarBody");
 const monthLabel = document.getElementById("monthLabel");
 const prevMonthButton = document.getElementById("prevMonth");
 const nextMonthButton = document.getElementById("nextMonth");
 const searchInput = document.getElementById("search");
+const saveButton = document.getElementById("saveChanges");
+const saveStatus = document.getElementById("saveStatus");
+const actorForm = document.getElementById("actorForm");
+const actorNameInput = document.getElementById("actorName");
+const actorRoleInput = document.getElementById("actorRole");
 
 let currentDate = new Date();
 currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
+const pendingChanges = new Map();
+const newActors = [];
+ main
 function getDaysInMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
 
+function formatDateKey(date, day) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const dayString = String(day).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${dayString}`;
+}
+
 function createHead(date) {
-  scheduleHead.innerHTML = "";
+  calendarHead.innerHTML = "";
+  const row = document.createElement("tr");
+  const actorHeader = document.createElement("th");
+  actorHeader.className = "actor-header";
+  actorHeader.textContent = "Актер";
+  row.appendChild(actorHeader);
+
   const daysInMonth = getDaysInMonth(date);
-
   for (let day = 1; day <= daysInMonth; day += 1) {
-    const dayDate = new Date(date.getFullYear(), date.getMonth(), day);
-    const cell = document.createElement("div");
-    cell.innerHTML = `<strong>${day}</strong><br /><span>${weekDays[dayDate.getDay()]}</span>`;
-    scheduleHead.appendChild(cell);
-  }
-}
-
-function buildAvailability(pattern, daysInMonth) {
-  const availability = {};
-  pattern.forEach(({ day, status }) => {
-    if (day <= daysInMonth) {
-      availability[day] = status;
-    }
-  });
-  return availability;
-}
-
-function createTimeline(actor, date) {
-  const daysInMonth = getDaysInMonth(date);
-  const timeline = document.createElement("div");
-  timeline.className = "timeline";
-  timeline.style.setProperty("--columns", daysInMonth);
-
-  const availability = buildAvailability(actor.pattern, daysInMonth);
-
-  for (let day = 1; day <= daysInMonth; day += 1) {
-    const status = availability[day] ?? "free";
-
-    const cell = document.createElement("div");
-    cell.className = `timeline__day timeline__day--${status}`;
-    cell.title = `${statusLabels[status]} · ${day} ${monthNames[date.getMonth()]}`;
-
-    timeline.appendChild(cell);
+    const th = document.createElement("th");
+    th.textContent = day;
+    row.appendChild(th);
   }
 
-  return timeline;
+  calendarHead.appendChild(row);
 }
 
-function renderSchedule() {
+function getStatus(actor, day) {
+  const override = pendingChanges.get(`${actor.id}-${day}`);
+  if (override) {
+    return override;
+  }
+  return actor.availability[day] ?? "free";
+}
+
+function cycleStatus(status) {
+  const index = statusOrder.indexOf(status);
+  const nextIndex = (index + 1) % statusOrder.length;
+  return statusOrder[nextIndex];
+}
+
+function handleCellClick(actor, day) {
+  const current = getStatus(actor, day);
+  const next = cycleStatus(current);
+  pendingChanges.set(`${actor.id}-${day}`, next);
+  renderCalendar();
+}
+
+function renderCalendar() {
   const searchValue = searchInput.value.trim().toLowerCase();
-  const filtered = actors.filter((actor) =>
+  const filteredActors = actors.filter((actor) =>main
     actor.name.toLowerCase().includes(searchValue)
   );
 
   monthLabel.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
   createHead(currentDate);
-  scheduleBody.innerHTML = "";
+  calendarBody.innerHTML = "";
 
-  if (filtered.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.textContent = "Нет актеров по заданному фильтру.";
-    scheduleBody.appendChild(empty);
+  if (filteredActors.length === 0) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = getDaysInMonth(currentDate) + 1;
+    cell.className = "empty-state";
+    cell.textContent = "Нет актеров по заданному фильтру.";
+    row.appendChild(cell);
+    calendarBody.appendChild(row);
     return;
   }
 
-  filtered.forEach((actor) => {
-    const row = document.createElement("div");
-    row.className = "actor-row";
+  const daysInMonth = getDaysInMonth(currentDate);
+  filteredActors.forEach((actor) => {
+    const row = document.createElement("tr");
+    const actorCell = document.createElement("td");
+    actorCell.className = "actor-cell";
+    actorCell.innerHTML = `${actor.name}<span class="actor-subtitle">${actor.role}</span>`;
+    row.appendChild(actorCell);
 
-    const card = document.createElement("div");
-    card.className = "actor-card";
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const status = getStatus(actor, day);
+      const cell = document.createElement("td");
+      cell.className = "day-cell";
 
-    const name = document.createElement("h3");
-    name.textContent = actor.name;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `status-${status}`;
+      button.title = `${statusLabels[status]} · ${day} ${monthNames[currentDate.getMonth()]}`;
+      button.setAttribute("aria-label", `${actor.name}: ${statusLabels[status]} на ${day}`);
+      button.addEventListener("click", () => handleCellClick(actor, day));
 
-    const role = document.createElement("p");
-    role.textContent = actor.role;
+      cell.appendChild(button);
+      row.appendChild(cell);
+    }
 
-    card.appendChild(name);
-    card.appendChild(role);
-
-    row.appendChild(card);
-    row.appendChild(createTimeline(actor, currentDate));
-
-    scheduleBody.appendChild(row);
+    calendarBody.appendChild(row);
   });
 }
 
+function serializeChanges() {
+  const changes = [];
+  pendingChanges.forEach((status, key) => {
+    const [actorId, day] = key.split("-").map(Number);
+    changes.push({
+      actorId,
+      date: formatDateKey(currentDate, day),
+      status,
+    });
+  });
+  return changes;
+}
+
+async function saveChanges() {
+  const changes = serializeChanges();
+  saveStatus.textContent = "Сохраняем изменения...";
+
+  try {
+    await fetch("/api/availability", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        month: `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`,
+        changes,
+      }),
+    });
+
+    pendingChanges.clear();
+    saveStatus.textContent = "Изменения сохранены.";
+  } catch (error) {
+    saveStatus.textContent = "Не удалось сохранить. Проверьте подключение к базе данных.";
+  }
+}
+
+async function saveNewActor(actor) {
+  try {
+    await fetch("/api/actors", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(actor),
+    });
+    saveStatus.textContent = `Актер ${actor.name} добавлен.`;
+  } catch (error) {
+    saveStatus.textContent = "Не удалось добавить актера.";
+  }
+}
+
+actorForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const name = actorNameInput.value.trim();
+  const role = actorRoleInput.value.trim();
+
+  if (!name || !role) {
+    return;
+  }
+
+  const newActor = {
+    id: Date.now(),
+    name,
+    role,
+    availability: {},
+  };
+
+  actors.unshift(newActor);
+  newActors.push(newActor);
+  actorNameInput.value = "";
+  actorRoleInput.value = "";
+  renderCalendar();
+  await saveNewActor({ name, role });
+});
+
 prevMonthButton.addEventListener("click", () => {
   currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-  renderSchedule();
+  pendingChanges.clear();
+  renderCalendar();
 });
 
 nextMonthButton.addEventListener("click", () => {
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-  renderSchedule();
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);codex
+  pendingChanges.clear();
+  renderCalendar();
 });
 
-searchInput.addEventListener("input", renderSchedule);
+searchInput.addEventListener("input", renderCalendar);
+saveButton.addEventListener("click", saveChanges);
 
-renderSchedule();
+renderCalendar();main
