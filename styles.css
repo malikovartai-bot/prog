@@ -1,0 +1,288 @@
+:root {
+  color-scheme: light;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background-color: #0f1115;
+  color: #f5f6f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #1b2233 0%, #0f1115 55%);
+}
+
+.page {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 24px 72px;
+}
+
+.page__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page__eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #9aa3b2;
+  margin: 0 0 10px;
+}
+
+h1 {
+  font-size: 30px;
+  margin: 0;
+  color: #f5f6f8;
+}
+
+.page__controls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: #9aa3b2;
+  gap: 6px;
+}
+
+.control input {
+  border: 1px solid #2b3245;
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 220px;
+  font-size: 14px;
+  background: #141a26;
+  color: #f5f6f8;
+}
+
+.month-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #141a26;
+  border: 1px solid #2b3245;
+}
+
+.month-switcher__label {
+  min-width: 160px;
+  text-align: center;
+  font-weight: 600;
+  color: #f5f6f8;
+}
+
+.icon-button {
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1f2635;
+  color: #f5f6f8;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: #2a3245;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #c7ced9;
+}
+
+.legend__chip {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.legend__chip--busy {
+  background: #ef4444;
+}
+
+.legend__chip--free {
+  background: #22c55e;
+}
+
+.legend__chip--maybe {
+  background: #facc15;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.sidebar {
+  background: #141a26;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid #2b3245;
+}
+
+.sidebar h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.actor-form {
+  display: grid;
+  gap: 12px;
+}
+
+.actor-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: #9aa3b2;
+}
+
+.actor-form input {
+  border: 1px solid #2b3245;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: #101521;
+  color: #f5f6f8;
+}
+
+.sidebar__hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #9aa3b2;
+}
+
+.primary-button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #2563eb;
+  color: #f5f6f8;
+}
+
+.primary-button:hover {
+  background: #1d4ed8;
+}
+
+.calendar {
+  background: #141a26;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid #2b3245;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.calendar__table {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: #141a26;
+  z-index: 1;
+}
+
+th,
+td {
+  border: 1px solid #2b3245;
+  text-align: center;
+  padding: 6px;
+  font-size: 12px;
+  color: #c7ced9;
+}
+
+th.actor-header,
+td.actor-cell {
+  text-align: left;
+  min-width: 180px;
+  background: #101521;
+  font-weight: 600;
+  color: #f5f6f8;
+}
+
+.actor-subtitle {
+  display: block;
+  font-weight: 400;
+  font-size: 11px;
+  color: #9aa3b2;
+}
+
+.day-cell button {
+  width: 100%;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.day-cell button:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+.status-busy {
+  background: #ef4444;
+}
+
+.status-free {
+  background: #22c55e;
+}
+
+.status-maybe {
+  background: #facc15;
+}
+
+.calendar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.calendar__status {
+  font-size: 12px;
+  color: #9aa3b2;
+}
+
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

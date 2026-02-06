@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>График занятости актеров</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="page__header">
+        <div>
+          <p class="page__eyebrow">AMMA Production · Внутренний портал</p>
+          <h1>График занятости актеров</h1>
+        </div>
+        <div class="page__controls">
+          <div class="month-switcher" aria-label="Выбор месяца">
+            <button class="icon-button" id="prevMonth" type="button" aria-label="Предыдущий месяц">
+              ‹
+            </button>
+            <div class="month-switcher__label" id="monthLabel"></div>
+            <button class="icon-button" id="nextMonth" type="button" aria-label="Следующий месяц">
+              ›
+            </button>
+          </div>
+          <label class="control">
+            Поиск по актеру
+            <input id="search" type="search" placeholder="Введите имя" />
+          </label>
+        </div>
+      </header>
+
+      <section class="legend" aria-label="Легенда статусов">
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--busy"></span>
+          Занят
+        </span>
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--free"></span>
+          Свободен
+        </span>
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--maybe"></span>
+          Под вопросом
+        </span>
+      </section>
+
+      <section class="layout">
+        <aside class="sidebar">
+          <h2>Добавить актера</h2>
+          <form id="actorForm" class="actor-form">
+            <label>
+              Имя актера
+              <input id="actorName" type="text" required placeholder="Например, Мария Павлова" />
+            </label>
+            <label>
+              Роль
+              <input id="actorRole" type="text" required placeholder="Например, Антагонист" />
+            </label>
+            <button type="submit" class="primary-button">Добавить и сохранить</button>
+          </form>
+          <div class="sidebar__hint">
+            Данные сохраняются прямо в браузере.
+          </div>
+        </aside>
+
+        <div class="calendar">
+          <div class="calendar__table" aria-live="polite">
+            <table>
+              <thead id="calendarHead"></thead>
+              <tbody id="calendarBody"></tbody>
+            </table>
+          </div>
+          <div class="calendar__actions">
+            <button class="primary-button" id="saveChanges" type="button">
+              Сохранить изменения
+            </button>
+            <span class="calendar__status" id="saveStatus"></span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
