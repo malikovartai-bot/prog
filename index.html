@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>График занятости актеров</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="page__header">
+        <div>
+          <p class="page__eyebrow">Внутренний портал постановок</p>
+          <h1>График занятости актеров</h1>
+          <p class="page__subtitle">
+            Отслеживайте репетиции и съемочные дни, чтобы планировать распределение ролей.
+          </p>
+        </div>
+        <div class="page__controls">
+          <label class="control">
+            Период
+            <select id="period" aria-label="Период">
+              <option value="7">7 дней</option>
+              <option value="14" selected>14 дней</option>
+              <option value="30">30 дней</option>
+            </select>
+          </label>
+          <label class="control">
+            Фильтр
+            <input id="search" type="search" placeholder="Поиск по актеру" />
+          </label>
+        </div>
+      </header>
+
+      <section class="legend" aria-label="Легенда статусов">
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--rehearsal"></span>
+          Репетиция
+        </span>
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--shooting"></span>
+          Съемка
+        </span>
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--hold"></span>
+          Резерв
+        </span>
+      </section>
+
+      <section class="schedule" aria-live="polite">
+        <div class="schedule__grid" id="scheduleGrid">
+          <div class="schedule__head" id="scheduleHead"></div>
+          <div class="schedule__body" id="scheduleBody"></div>
+        </div>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
