@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>График занятости актеров</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="page__header">
+        <div>
+          <p class="page__eyebrow">AMMA Production · Внутренний портал</p>
+          <h1>График занятости актеров</h1>
+        </div>
+        <div class="page__controls">
+          <div class="month-switcher" aria-label="Выбор месяца">
+            <button class="icon-button" id="prevMonth" type="button" aria-label="Предыдущий месяц">
+              ‹
+            </button>
+            <div class="month-switcher__label" id="monthLabel"></div>
+            <button class="icon-button" id="nextMonth" type="button" aria-label="Следующий месяц">
+              ›
+            </button>
+          </div>
+          <label class="control">
+            Поиск по актеру
+            <input id="search" type="search" placeholder="Введите имя" />
+          </label>
+        </div>
+      </header>
+
+      <section class="legend" aria-label="Легенда статусов">
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--busy"></span>
+          Занят
+        </span>
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--free"></span>
+          Свободен
+        </span>
+        <span class="legend__item">
+          <span class="legend__chip legend__chip--maybe"></span>
+          Под вопросом
+        </span>
+      </section>
+
+      <section class="schedule" aria-live="polite">
+        <div class="schedule__grid">
+          <div class="schedule__head" id="scheduleHead"></div>
+          <div class="schedule__body" id="scheduleBody"></div>
+        </div>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
