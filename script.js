@@ -123,7 +123,7 @@ function hydrateActors() {
   actors = getInitialActors();
   saveToStorage();
 }
-
+main
 function createHead(date) {
   calendarHead.innerHTML = "";
   const row = document.createElement("tr");
@@ -212,7 +212,7 @@ function renderCalendar() {
   });
 }
 
-function saveNewActor(name, role) {
+function saveNewActor(name, role) 
   const newActor = {
     id: Date.now(),
     name,
