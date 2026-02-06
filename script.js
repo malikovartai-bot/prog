@@ -20,41 +20,7 @@ const statusLabels = {
   maybe: "Под вопросом",
 };
 
-const schemaSql = `
-CREATE TABLE IF NOT EXISTS actors (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  full_name TEXT NOT NULL,
-  role_name TEXT NOT NULL,
-  is_active INTEGER NOT NULL DEFAULT 1,
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS availability_statuses (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  code TEXT NOT NULL UNIQUE,
-  label TEXT NOT NULL,
-  color_hex TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS actor_availability (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  actor_id INTEGER NOT NULL,
-  date TEXT NOT NULL,
-  status_id INTEGER NOT NULL,
-  note TEXT,
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE (actor_id, date)
-);
-
-INSERT INTO availability_statuses (code, label, color_hex)
-  VALUES
-    ('busy', 'Занят', '#ef4444'),
-    ('free', 'Свободен', '#22c55e'),
-    ('maybe', 'Под вопросом', '#facc15')
-  ON CONFLICT(code) DO NOTHING;
-`;
+const storageKey = "amma-portal-data";
 
 const calendarHead = document.getElementById("calendarHead");
 const calendarBody = document.getElementById("calendarBody");
@@ -71,10 +37,8 @@ const actorRoleInput = document.getElementById("actorRole");
 let currentDate = new Date();
 currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
-let db;
 let actors = [];
-let statusMap = new Map();
- main
+
 function getDaysInMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
@@ -85,76 +49,81 @@ function formatDateKey(date, day) {
   return `${date.getFullYear()}-${month}-${dayString}`;
 }
 
-function persistDatabase() {
-  const data = db.export();
-  const encoded = btoa(String.fromCharCode(...data));
-  localStorage.setItem("amma-portal-db", encoded);
+function saveToStorage() {
+  localStorage.setItem(storageKey, JSON.stringify({ actors }));
 }
 
-function loadDatabase(SQL) {
-  const stored = localStorage.getItem("amma-portal-db");
-  if (stored) {
-    const bytes = Uint8Array.from(atob(stored), (char) => char.charCodeAt(0));
-    return new SQL.Database(bytes);
+function loadFromStorage() {
+  const raw = localStorage.getItem(storageKey);
+  if (!raw) {
+    return null;
   }
-  const database = new SQL.Database();
-  database.exec(schemaSql);
-  return database;
-}
-
-function queryRows(statement, params = []) {
-  const rows = [];
-  const stmt = db.prepare(statement);
-  stmt.bind(params);
-  while (stmt.step()) {
-    rows.push(stmt.getAsObject());
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return null;
   }
-  stmt.free();
-  return rows;
 }
 
-function refreshStatusMap() {
-  const statusRows = queryRows("SELECT id, code FROM availability_statuses");
-  statusMap = new Map(statusRows.map((row) => [row.code, row.id]));
+function getInitialActors() {
+  return [
+    {
+      id: 1,
+      name: "Анна Смирнова",
+      role: "Главная героиня",
+      availability: {
+        "2024-04-03": "busy",
+        "2024-04-04": "busy",
+        "2024-04-10": "maybe",
+        "2024-04-15": "busy",
+        "2024-04-22": "busy",
+      },
+    },
+    {
+      id: 2,
+      name: "Илья Котов",
+      role: "Второстепенная роль",
+      availability: {
+        "2024-04-01": "maybe",
+        "2024-04-08": "busy",
+        "2024-04-09": "busy",
+        "2024-04-18": "busy",
+      },
+    },
+    {
+      id: 3,
+      name: "Мария Павлова",
+      role: "Антагонист",
+      availability: {
+        "2024-04-05": "busy",
+        "2024-04-06": "busy",
+        "2024-04-07": "busy",
+        "2024-04-19": "maybe",
+      },
+    },
+    {
+      id: 4,
+      name: "Сергей Орлов",
+      role: "Эпизод",
+      availability: {
+        "2024-04-12": "busy",
+        "2024-04-13": "busy",
+        "2024-04-25": "maybe",
+      },
+    },
+  ];
 }
-main
-function refreshActors() {
-  const rows = queryRows(
-    "SELECT id, full_name, role_name FROM actors WHERE is_active = 1 ORDER BY id DESC"
-  );
-  const daysInMonth = getDaysInMonth(currentDate);
-  actors = rows.map((row) => ({
-    id: row.id,
-    name: row.full_name,
-    role: row.role_name,
-    availability: {},
-  }));
 
-  if (actors.length === 0) {
+function hydrateActors() {
+  const stored = loadFromStorage();
+  if (stored && Array.isArray(stored.actors)) {
+    actors = stored.actors;
     return;
   }
-
-  const startDate = formatDateKey(currentDate, 1);
-  const endDate = formatDateKey(currentDate, daysInMonth);
-  const availabilityRows = queryRows(
-    `
-      SELECT aa.actor_id, aa.date, s.code AS status
-      FROM actor_availability aa
-      JOIN availability_statuses s ON s.id = aa.status_id
-      WHERE aa.date BETWEEN ? AND ?
-    `,
-    [startDate, endDate]
-  );
-
-  availabilityRows.forEach((row) => {
-    const day = Number(row.date.split("-")[2]);
-    const actor = actors.find((item) => item.id === row.actor_id);
-    if (actor && day) {
-      actor.availability[day] = row.status;
-    }
-  });
+  actors = getInitialActors();
+  saveToStorage();
 }
- main
+main
 function createHead(date) {
   calendarHead.innerHTML = "";
   const row = document.createElement("tr");
@@ -174,7 +143,8 @@ function createHead(date) {
 }
 
 function getStatus(actor, day) {
-  return actor.availability[day] ?? "free";
+  const key = formatDateKey(currentDate, day);
+  return actor.availability[key] ?? "free";
 }
 
 function cycleStatus(status) {
@@ -183,29 +153,12 @@ function cycleStatus(status) {
   return statusOrder[nextIndex];
 }
 
-function updateStatusInDatabase(actorId, day, status) {
-  const statusId = statusMap.get(status);
-  if (!statusId) {
-    return;
-  }
-  const date = formatDateKey(currentDate, day);
-  db.run(
-    `
-    INSERT INTO actor_availability (actor_id, date, status_id)
-    VALUES (?, ?, ?)
-    ON CONFLICT(actor_id, date)
-    DO UPDATE SET status_id = excluded.status_id, updated_at = CURRENT_TIMESTAMP
-    `,
-    [actorId, date, statusId]
-  );
-  persistDatabase();
-}
-
 function handleCellClick(actor, day) {
+  const key = formatDateKey(currentDate, day);
   const current = getStatus(actor, day);
   const next = cycleStatus(current);
-  actor.availability[day] = next;
-  updateStatusInDatabase(actor.id, day, next);
+  actor.availability[key] = next;
+  saveToStorage();
   saveStatus.textContent = "Изменения сохранены.";
   renderCalendar();
 }
@@ -259,9 +212,15 @@ function renderCalendar() {
   });
 }
 
-function saveNewActor(name, role) {
-  db.run("INSERT INTO actors (full_name, role_name) VALUES (?, ?)", [name, role]);
-  persistDatabase();
+function saveNewActor(name, role) 
+  const newActor = {
+    id: Date.now(),
+    name,
+    role,
+    availability: {},
+  };
+  actors.unshift(newActor);
+  saveToStorage();
 }
 
 actorForm.addEventListener("submit", (event) => {
@@ -277,35 +236,24 @@ actorForm.addEventListener("submit", (event) => {
   actorNameInput.value = "";
   actorRoleInput.value = "";
   saveStatus.textContent = `Актер ${name} добавлен.`;
-  refreshActors();
   renderCalendar();
 });
 
 prevMonthButton.addEventListener("click", () => {
   currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-  refreshActors();
   renderCalendar();
 });
 
 nextMonthButton.addEventListener("click", () => {
-  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);n
-  refreshActors();
+  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
   renderCalendar();
 });
 
 searchInput.addEventListener("input", renderCalendar);
 saveButton.addEventListener("click", () => {
-  persistDatabase();
+  saveToStorage();
   saveStatus.textContent = "Все изменения сохранены.";
 });
 
-(async () => {
-  const SQL = await initSqlJs({
-    locateFile: (file) => `https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/${file}`,
-  });
-  db = loadDatabase(SQL);
-  db.exec(schemaSql);
-  refreshStatusMap();
-  refreshActors();
-  renderCalendar();
-})();
+hydrateActors();
+renderCalendar();
