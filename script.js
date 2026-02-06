@@ -84,7 +84,6 @@ currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
 const pendingChanges = new Map();
 const newActors = [];
-
 function getDaysInMonth(date) {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
@@ -273,4 +272,4 @@ nextMonthButton.addEventListener("click", () => {
 searchInput.addEventListener("input", renderCalendar);
 saveButton.addEventListener("click", saveChanges);
 
-renderCalendar();
+renderCalendar();n
